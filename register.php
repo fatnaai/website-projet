@@ -1,4 +1,35 @@
 <?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  
+    $host = "http://localhost/phpmyadmin/index.php?route=/table/change&db=database&table=addproducts";
+    $dbname = "database";
+    $username = "root";
+    $password = "";
+
+    try {
+        $bdd = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+        $bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    } catch (PDOException $e) {
+        echo "Connection failed: " . $e->getMessage();
+    }
+
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+    $sql = "INSERT INTO users (name, email, password) VALUES (:name, :email, :password)";
+    $stmt = $bdd->prepare($sql);
+    $stmt->bindParam(':name', $name);
+    $stmt->bindParam(':email', $email);
+    $stmt->bindParam(':password', $password);
+
+    try {
+        $stmt->execute();
+        echo "<center>Registration successful. You can now <a href='#'>log in</a>.</center>";
+    } catch (PDOException $e) {
+        echo "<center>Error: " . $e->getMessage() . "</center>";
+    }
+
 ?>
 <!DOCTYPE html>
 <!DOCTYPE html>
