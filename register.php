@@ -1,35 +1,4 @@
-<?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  
-    $host = "http://localhost/phpmyadmin/index.php?route=/table/change&db=database&table=addproducts";
-    $dbname = "database";
-    $username = "root";
-    $password = "";
-
-    try {
-        $bdd = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-        $bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch (PDOException $e) {
-        echo "Connection failed: " . $e->getMessage();
-    }
-
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-
-    $sql = "INSERT INTO users (name, email, password) VALUES (:name, :email, :password)";
-    $stmt = $bdd->prepare($sql);
-    $stmt->bindParam(':name', $name);
-    $stmt->bindParam(':email', $email);
-    $stmt->bindParam(':password', $password);
-
-    try {
-        $stmt->execute();
-        echo "<center>Registration successful. You can now <a href='#'>log in</a>.</center>";
-    } catch (PDOException $e) {
-        echo "<center>Error: " . $e->getMessage() . "</center>";
-    }
-
+<?php 
 ?>
 <!DOCTYPE html>
 <!DOCTYPE html>
@@ -45,18 +14,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
   <div class="wrapper">
     <h2>Registration</h2>
-    <form id="registrationForm" onsubmit="return validateForm()">
+    <form id="registrationForm" action="register.php" method="Post" onsubmit="return validateForm()">
       <div class="input-box">
-        <input type="text" id="name" placeholder="Enter your name" required>
+      <input type="text" id="name" name="name" placeholder="Enter your name" required>
       </div>
       <div class="input-box">
-        <input type="text" id="email" placeholder="Enter your email" required>
+        <input type="text" id="email" name="email" placeholder="Enter your email" required>
       </div>
       <div class="input-box">
-        <input type="password" id="password" placeholder="Create password" required>
+        <input type="password" id="password"name="password" placeholder="Create password" required>
       </div>
       <div class="input-box">
-        <input type="password" id="confirmPassword" placeholder="Confirm password" required>
+      <input type="password" id="confirmPassword" name="password" placeholder="Confirm password" required>
       </div>
       <div class="policy">
         <input type="checkbox" id="acceptTerms">
@@ -92,10 +61,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       return true;
     }
   </script>
-</body>
-
-</html>
-
 <style>
   
   @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
@@ -157,7 +122,6 @@ form .input-box input{
   border-radius: 6px;
   transition: all 0.3s ease;
 }
-.input-box input:focus,
 .input-box input:valid{
   border-color: #4070f4;
 }
@@ -194,6 +158,26 @@ form .text h3 a:hover{
   text-decoration: underline;
 }
 </style>
+</body>
 </html>
 <?php
+include 'db.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  $name = $_POST['name'];
+  $email = $_POST['email'];
+  $password = password_hash($_POST['password'], PASSWORD_DEFAULT); 
+
+    $sql = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "sss", $name, $email, $password);
+
+    try {
+        mysqli_stmt_execute($stmt);
+        echo "<center>Registration successful. You can now <a href='login.php'>log in</a>.</center>";
+    } catch (Exception $e) {
+        echo "<center>Error: " . $e->getMessage() . "</center>";
+    }
+}
+
 ?>

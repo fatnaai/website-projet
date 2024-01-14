@@ -1,4 +1,33 @@
 <?php
+session_start();
+include 'db.php';
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  $email = $_POST["username"];
+  $password = $_POST["password"];
+    $sql = "SELECT * FROM users WHERE email = ? LIMIT 1";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "s", $email);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if ($row = mysqli_fetch_assoc($result)) {
+        if (password_verify($password, $row['password'])) {
+            $_SESSION["loggedin"] = true;
+
+            if ($email === "admintotama@gmail.com" && $password === "admin") {
+                header("Location: adminspace.php");
+            } else {
+                header("Location: userspace.php");
+            }
+            exit();
+        } else {
+            $error = "Invalid credentials";
+        }
+    } else {
+        $error = "Invalid credentials";
+    }
+  
+  }
 ?>
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -11,7 +40,7 @@
     <div class="container">
       <div class="wrapper">
         <div class="title"><span>Log in </span></div>
-        <form action="dashboard.php" method="post">
+        <form action="login.php" method="post">
     <div class="row">
         <i class="fas fa-user"></i>
         <input type="text" name="username" placeholder="username" required>
@@ -30,17 +59,17 @@
       </div>
     </div>
     <style>
-*{
+          *{
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: 'Poppins',sans-serif;
-}
-body{
+           }
+   body{
   background: whitesmoke;
   overflow: hidden;
-}
-::selection{
+     }
+       ::selection{
   background: rgba(26,188,156,0.3);
 }
 .container{
@@ -142,16 +171,3 @@ form .signup-link a:hover{
 
   </body>
 </html>
-<?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST["username"];
-    $password = $_POST["password"];
-    if ($username == "admin" && $password == "admin") {
-        $_SESSION["loggedin"] = true;
-        header("Location: dashboard.php");
-        exit();
-    } else {
-        $error = "Identifiants invalides";
-    }
-}
-?>
